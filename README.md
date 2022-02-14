@@ -136,10 +136,10 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 #### Mencari Pod dengan label
 - `kubectl get pods -l {key}` -> get Pod with label based on key
 - `kubectl get pods -l {key}={value}` -> get Pod with label based on key and value
-- `kubectl get pods -l '!key'` -> get Pod with label where not having this key
-- `kubectl get pods -l key!=value` -> get Pod with label where key not having this value
-- `kubectl get pods -l 'key in (value1, value2)'` -> get Pod with label with multiple value
-- `kubectl get pods -l 'key notin (value1, value2)'`
+- `kubectl get pods -l '!{key}'` -> get Pod with label where not having this key
+- `kubectl get pods -l {key}!={value}` -> get Pod with label where key not having this value
+- `kubectl get pods -l '{key} in (value1, value2)'` -> get Pod with label with multiple value
+- `kubectl get pods -l '{key} notin (value1, value2)'`
 
 #### Mencari Pod dengan beberapa label
 - `kubectl get pods -l key1,key2`
@@ -153,12 +153,12 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 - Annotation bisa menampung informasi sampai 256kb
 
 **Melihat Annotation harus lewat describe**
-`kubectl describe pod {nama_pod}`
+- `kubectl describe pod {nama_pod}`
 
 #### Menambahkan Annotation ke Pod
 - `kubectl annotate pod {nama_pod} {key}={value}`
 
-### Mengubah Annotation yang sudah ada
+#### Mengubah Annotation yang sudah ada
 - `kubectl annotate pod {nama_pod} {key}={value} --overwrite`
 
 
