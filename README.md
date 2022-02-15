@@ -281,3 +281,55 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 #### Melihat Replica Set
 - `kubectl get rs`
 
+## Label Match Expression
+
+### Operasi di Match Expression
+- **In**, value label harus ada di value in
+- **NotIn**, value  label tidak boleh ada di value in
+- **Exists**, label harus ada
+- **NotExists**, label tidak boleh ada
+
+## Upgrade Minikube
+
+### Cek versi terbaru minikube
+  ```
+  minikube update-check
+  ```
+- Pastikan menghentikan dan menghapus terlebih dahulu minikube-nya
+  ```
+  minikube stop
+  ```
+  ```
+  minikube delete
+  ```
+- Download dan install ulang minikube
+
+
+## Daemon Set
+- Saat menggunakan Replica Set atau Replication Controller, Pod akan dijalankan di dalam Node secara random oleh si Kubernetes
+- Jika kita ingin menjalankan Pod di setiap Node yang ada di Kubernetes, dan tiap Pod hanya boleh jalan 1 di Node, kita bisa menggunakan Daemon Set
+- By default, Daemon Set akan menjalankan Pod di setiap Node yang ada di Kubernetes Cluster, kecuali jika kita meminta hanya jalan di Node tertentu
+
+### Diagram Daemon Set
+![Daemon Set](/img/daemon-set.png)
+- Saat kita membuat Daemon Set, maka Pod dari Daemon Set akan dijalankan di sejumlah Node-nya, tiap-tiap Node
+
+### Contoh Kasus Penggunaan Daemon Set
+- Aplikasi untuk monitoring Node
+- Aplikasi log di Node
+- etc.
+
+#### Melihat DaemonSet
+- `kubectl get ds`
+- `kubectl get daemonsets`
+- `kubectl get daemonset`
+
+#### Describe DaemonSet
+- `kubectl describe daemonsets {nama_daemon}`
+- `kubectl describe daemonset {nama_daemon}`
+- `kubectl describe ds {nama_daemon}`
+
+#### Menghapus DaemonSet
+- `kubectl delete daemonsets {nama_daemon}`
+- `kubectl delete daemonset {nama_daemon}`
+- `kubectl delete ds {nama_daemon}`
