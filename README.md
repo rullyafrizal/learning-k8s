@@ -333,3 +333,186 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 - `kubectl delete daemonsets {nama_daemon}`
 - `kubectl delete daemonset {nama_daemon}`
 - `kubectl delete ds {nama_daemon}`
+
+## Job
+- Job adalah resurce di Kubernetes yang digunakan untuk menjalankan Pod yang hanya butuh berjalan sekali, lalu berhenti
+- Pada Replication Controller, Replica Set, Daemon Set, jika Pod mati, maka secara otomatis Pod akan dijalankan ulang
+- Berbeda dengan Job. Pada job justru Pod akan langsung mati jika pekerjaannya telah selesai
+
+### Contoh Penggunaan Job
+- Aplikasi untuk backup/restore database
+- Aplikasi untuk import/export data
+- Aplikasi untuk menjalankan proses batch
+- etc.
+
+### Melihat Job
+  ```
+  kubectl get job
+  ```
+
+### Menghapus Job
+  ```
+  kubectl delete job {nama_job}
+  ```
+
+## Cron Job
+- Cron Job adalah aplikasi untuk penjadwalan yang biasanya ada di sistem operasi Unix
+- Dengan menggunakan Cron Job, kita bisa menjadwalkan aplikais berjalan sesuai jadwal yang kita inginkan
+- Kubernetes mendukung resource Cron Job, di mana cara kerjanya mirip dengan Job, hanya saja kalau Job berjalan sekali, Cron Job bisa berjalan berulang kali sesuai dengan jadwal yang kita inginkan
+- Cron Job juga memungkinkan kita untuk menjalankan aplikasi dengan waktu yang telah ditentukan
+
+### Contoh Penggunaan Cron Job
+- Aplikasi untuk membuat laporan harian
+- Aplikasi backup data secara berkala
+- Aplikasi untuk mengirim data tagihan tiap bulan
+- Aplikasi untuk menarik dana pinjaman yang jatuh tempo
+- etc.
+
+### Melihat Semua Cron Job
+  ```
+  kubectl get cronjobs
+  ```
+
+### Menghapus Cron Job
+  ```
+  kubectl delete cronjobs {nama_cronjob}
+  ```
+
+## Node Selector
+- Kadang kita membuat Node dengan spesifikasi berbeda dari Node biasanya
+- Misal Node yang memiliki GPU, atau dengan hardisk SSD
+- Dengan Node Selector, kita bisa meminta Kubernetes untuk menjalankan Pod dengan Node tertentu
+
+### Menambahkan Label ke Node
+  ```
+  kubectl label node {nama_node} {key}={value}
+  ```
+
+## All
+- Digunakan untuk menampilkan semua objek/resource di kubernetes, default namespace by default
+  ```
+  kubectl get all
+  ```
+- Certain namespace
+  ```
+  kubectl get all --namespace {nama_namespace}
+  ```
+
+## Service
+- Service adalah resource di Kubernetes yang digunakan untuk membuat satu gerbang untuk mengakses satu atau lebih Pod
+- Dalam Production, kita akan selalu menggunakan service untuk mengakses Pod 
+- Service memiliki IP Address dan Port yang tidak pernah berubah selama service itu ada
+- Client bisa mengakses service tersebut, dan secara otomatis akan meneruskan ke Pod yang ada di belakang service tersebut
+- Dengan begini, Client tidak perlu tahu lokasi tiap Pod, dan Pod bisa bertambah, berkurang, atau berpindah, tanpa harus mengganggu Client
+
+### Diagram Akses Pod Secara Langsung
+![Pod Langsung](/img/service-pod-langsung.png)
+- Pod Client harus menembak ke ketiga Pod A
+
+### Diagram Akses Pod Via Service
+![Via Service](/img/pod-via-service.png)
+- Pod Client hanya perlu menembak ke Service, dan untuk selanjutnya akan di-handle oleh Service
+
+### Membuat Service
+- Sama dengan prosedur pembuatan resource lain
+
+### Bagaimana Menentukan Pod untuk Service?
+- Service akan mendsitribusikan trafik ke Pod yang ada di belakangnya secara seimbang
+- Service akan menggunakan label selector untuk mengetahui Pod mana yang ada di belakang service tersebut
+
+### Melihat Service
+  ```
+  kubectl get service
+  ```
+
+### Menghapus Service
+  ```
+  kubectl delete service {nama_service}
+  ```
+
+### Mengakses Service dari Dalam Cluster
+- `kubectl exec {nama_pod} -it -- /bin/sh`
+- `curl http://cluster-ip:port/`
+
+
+#### Menghapus semua resource dari kubernetes
+- `kubectl delete all --all`
+
+
+### Mengakses Service (Manual)
+- Cara manual untuk mengakses service yaitu dengan cara membuat service terlebih dahulu, lalu memasukkannya ke dalam konfigurasi aplikasi secara manual
+
+### Mengakses Service (Otomatis)
+- Menggunakan Environment Variable
+- Menggunakan DNS
+
+* Melihat Environment Variable : `kubectl exec {nama_pod} -- env`
+
+#### Mengakses Menggunakan DNS
+  ```
+  {nama-service}.{nama-namespace}.svc.cluster.local:{port}
+  ```
+
+#### Melihat Semua Endpoint
+- `kubectl get endpoints`
+- `kubectl get ep`
+
+## External Service
+- Biasanya service digunakan sebagai gateway untuk internal Pod
+- Tapi service juga bisa digunakan sebagai gateway untuk aplikasi eksternal yang berada di luar kubernetes cluster
+
+### Diagram External Service
+![External Service](/img/external-service.png)
+
+
+### Melihat Service Endpoint
+- `kubectl describe service {nama_service}`
+- `kubectl get endpoints {nama_service}`
+
+
+## Mengekspos Service
+- Terkadang ada kebutuhan kita untuk mengekspos service keluar
+- Tujuannya adalah agar aplikasi dari luar kubernetes cluster bisa mengakses Pod yang berada di belakang service tersebut
+
+### Diagram Mengekspos Service
+![service-ekspos](/img/service-expose.png)
+
+### Tipe Service
+- **ClusterIP**: Mengekspos Service di dalam internal kubernetes cluster
+- **ExternalName**: Memetakan Service (mapping) ke External Name
+- **NodePort**: Mengekspos Service pada setiap IP node dan port yang sama. Kita dapat mengakses Service dengan tipe ini, dari luar cluster melalui `{NodeIP}:{NodePort}`
+- **LoadBalancer**: Mengekspos Service secara eksternal dengan menggunakan LoadBalancer yang disediakan oleh penyedia layanan cloud
+
+### Cara untuk Mengekspos Service
+- Dengan menggunakan NodePort, sehingga Node akan membuka port yang akan meneruskan ke Service yang dituju
+- Dengan menggunakan LoadBalancer, sehingga service bisa diakses via LoadBalancer, dan LoadBalancer akan meneruskan request ke NodePost dan dilanjutkan ke Service
+- Menggunaka Ingress, di mana Ingress adalah resource yang memang ditujukan untuk mengekspos Service, Namun Ingress hanya beroperasi di level HTTP
+
+## Service Node Port
+![Node Port](img/node-port.png)
+- Saat kita membuat service dan tipenya adalah NodePort, maka Node yang ada di kubernetes akan membuka Port
+- Saat Client mengakses ke Node 1, akan diteruskan ke Service 1, dan akan diteruskan lagi ke masing-masing Pod
+
+### Melihat NodePort di Minikube
+  ```
+  minikube service {nama_service}
+  ```
+
+## Service Load Balancer
+- Cloud Provider seperti GCP atau AWS biasanya sudah memiliki Load Balancer
+- Kubernetes bisa menggunakan LoadBalancer bawaan dari Cloud Provider sebagai cara untuk mengakses service
+- LoadBalancer akan melakukan load balance request ke NodePort
+- Sayangnya Service LoadBalancer ini tidak bisa di-test di local seperti menggunakan Minikube (harus di cloud provider)
+
+### Diagram Load Balancer
+![Load Balancer](/img/load-balancer.png)
+- Dari client bisa langsung menembak dulu ke load balancer, dan akan diteruskan ke Node (akan dipilih ke node yang mana, balancing), dan akan diteruskan lagi ke service yang dituju
+
+### Diagram Multi Load Balancer
+![Multi Load Balancer](/img/multi-load-balancer.png)
+
+## Ingress
+
+
+
+
