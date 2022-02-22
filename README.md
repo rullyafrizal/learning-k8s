@@ -546,6 +546,15 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 
 
 ## Multi Container Port
+- Saat menggunakan Docker, kita selalu diajarkan bahwa 1 container untuk 1 aplikasi
+- Di kubernetes sendiri sedikit berbeda, saat kita deploy aplikasi kita, maka dia akan disimpan dalam 1 pod. Kenapa pod? karena dalam satu pod kita bisa menambahkan banyak container
+- Ini sangat cocok jika kita butuh aplikasi yang berjalan di beberapa container, dan jika ingin scale, harus semuanya ikut scale
+
+### Diagram Multi Container Pod
+![Multi Container Pod](/img/multi-container-pod.png)
+- Perlu diingat, ketika menggunakan multi container, maka port di tiap container harus unique agar tidak bentrok
+
+
 
 
 
