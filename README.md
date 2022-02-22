@@ -513,6 +513,40 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 
 ## Ingress
 
+### Masalah Saat Mengekspos Service
+- Jika menggunakan NodePort
+  - Semua Node harus terekspos ke public
+  - Client harus tahu semua IP Address semua Node
+- Jika Menggunakan LoadBalancer
+  - Maka semua LoadBalancer harus terekspos ke public
+  - Client harus tahu semua IP Address semua LoadBalancer
+
+### Apa itu Ingress?
+- Ingress adalah cara alternatif untuk expose service
+- Berberda dengan LoadBalancer atau NodePort, jika menggunakan Ingress, client hanya butuh tahu satu lokasi IP Address Ingress
+- Ketika client melakukan request ke Ingress, pemilihan service ditentukan menggunakan hostname dari request
+- Ingress hanya mendukung protocol HTTP
+
+### Diagram Ingress
+![Ingress](/img/ingress.png)
+- Client hanya perlu menembak ke Ingress
+- Ingress selanjutnya akan melakukan routing
+  
+  **Ingress bisa berbentuk NGINX**
+
+### Menjalankan Ingress di Minikube
+1. `minikube addons list`
+2. `minikube addons enable ingress`
+3. `kubectl get pods --namespace kube-system`
+
+
+### Melihat IP Minikube
+- `minikube ip`
+
+
+
+## Multi Container Port
+
 
 
 
