@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  ENV: VALUE
+metadata:
+  name: env-config
+  namespace: default

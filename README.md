@@ -577,6 +577,27 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 - Best practice untuk menyimpan data konfigurasi adalah di **environment**, sehingga bisa diubah-ubah secara dinamis dan juga centralized
 - Kubernetes mendukung environment variable untuk Pod
 
+## ConfigMap
+- Kubernetes memiliki kemampuan untuk memisahkan konfigurasi dalam object bernama ConfigMap
+- In the simple terms, ConfigMap is a way to store configuration data in Kubernetes
+- Bentuk ConfigMap adalah sebuah Map yang berisi key-value
+- Aplikasi tidak perlu membaca konfigurasi langsung ke dalam ConfigMap, melainkan Kubernetes akan mengirim konfigurasi di ConfigMap ke dalam env variable di container
+
+### Problem dengan Hardcode Konfigurasi
+- Saat kita hardcode konfiguraasi environment variable di file yaml, artinya kita harus siap-siap membuat file config yang berbeda untuk setiap environment
+- Sebagai contoh, ketika kita punya environment untuk production, development, qa, dll, maka kita harus membuat file config yang berbeda untuk setiap environment
+- Jika sampai lupa untuk update konfigurasi, maka dapat terjadi kesalahan konfigurasi environment
+
+### Diagram ConfigMap
+![ConfigMap](/img/configmap.png)
+
+#### Melihat dan Menghapus ConfigMap
+- `kubectl get configmaps`
+- `kubectl describe configmap {nama_configmap}`
+- `kubectl delete configmap {nama_configmap}`
+
+
+
 
 
 
