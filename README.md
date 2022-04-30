@@ -555,6 +555,33 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 - Perlu diingat, ketika menggunakan multi container, maka port di tiap container harus unique agar tidak bentrok
 
 
+## Volume
+- Berkas di dalam container tidak bersifat permanen, akan terhapus seiring dihapusnya Pod atau Container
+- Secara sederhana, Volume adalah sebuah direktori yang bisa diakses oleh container yang ada di Pod.
+
+### Jenis Volume
+- **emptyDir**, direktori sederhana yang kosong
+- **hostPath**, digunakan untuk sharing direktori dari node ke pod
+- **gitRepo**, direktori yang dibuat pertama kali ketika clone sebuah repository git
+- **nfs**, sharing network file system
+- Lainnya, https://kubernetes.io/docs/concepts/storage/volumes/#volume-types
+
+### Sharing Volume
+- Dalam suatu Pod, kita dapat membuat lebih dari satu Container. Oleh karena itu, Volume dari suatu Pod bisa kita share ke beberapa Container
+- Hal ini sangat cocok ketika kita butuh sharing direktori antar container, misal container pertama membuat file, container kedua memproses file
+
+![sharing-volume](/img/sharing-volume.png)
+
+## Environment Variable
+- Ketika kita membuat aplikasi, sering sekali kita butuh data konfigurasi
+- Best practice untuk menyimpan data konfigurasi adalah di **environment**, sehingga bisa diubah-ubah secara dinamis dan juga centralized
+- Kubernetes mendukung environment variable untuk Pod
+
+
+
+
+
+
 
 
 
