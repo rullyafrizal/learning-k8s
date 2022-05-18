@@ -584,7 +584,7 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 - Aplikasi tidak perlu membaca konfigurasi langsung ke dalam ConfigMap, melainkan Kubernetes akan mengirim konfigurasi di ConfigMap ke dalam env variable di container
 
 ### Problem dengan Hardcode Konfigurasi
-- Saat kita hardcode konfiguraasi environment variable di file yaml, artinya kita harus siap-siap membuat file config yang berbeda untuk setiap environment
+- Saat kita hardcode konfigurasi environment variable di file yaml, artinya kita harus siap-siap membuat file config yang berbeda untuk setiap environment
 - Sebagai contoh, ketika kita punya environment untuk production, development, qa, dll, maka kita harus membuat file config yang berbeda untuk setiap environment
 - Jika sampai lupa untuk update konfigurasi, maka dapat terjadi kesalahan konfigurasi environment
 
@@ -595,6 +595,99 @@ https://kubernetes.io/id/docs/tasks/tools/install-kubectl/
 - `kubectl get configmaps`
 - `kubectl describe configmap {nama_configmap}`
 - `kubectl delete configmap {nama_configmap}`
+
+## Secret
+Ketika kita menggunakan ConfigMap, data yang ada di dalam ConfigMap dianggap tidak sensitive karena terekspos. <br>
+
+Terkadang pada konfigurasi aplikasi kita, butuh data yang sifatnya sensitif, seperti `DB_URI`, API Key, Secret Key, dsb. Untuk menyimpan jenis data seperti itu, kita bisa menggunakan fitur Secret di Kubernetes. Secret mirip dengan ConfigMap, berisikan data pair key-value. <br>
+
+Kubernetes menyimpan Secret secara aman dengan cara hanya mendistribusikan Secret pada Node yang memang hanya membutuhkan Secret tersebut, letak penyimpananannya terdapat pada memory di Node dan tidak pernah disimpan di physical storage. <br>
+
+Di master Node sendiri (etcd), Secret disimpan dengan cara di-encrypt, sehingga menjadi lebih aman. Secara sederhana, kita menggunakan ConfigMap untuk konfigurasi yang bersifat tidak sensitif, dan gunakan Secret apabila konfigurasi bersifat sensitif. <br>
+
+## Downward API
+Konfigurasi yang bisa kita set secara manual bisa ditangani dengan baik emnggunakan ConfigMap dan Secret, namun bagaimana dengan konfigruasi yang dinamis? Seperti informasi Pod dan Node? <br>
+
+Kubernetes memiliki Downward API. Downward API bisa membantu kita untuk mengambil informasi seputar Pod dan Node melalui environment variable. <br>
+<br>
+
+### List metadata Downward API
+| Metadata        | Keterangan                    |
+| --------------- | ----------------------------- |
+| requests.cpu    | Jumlah CPU yang di request    |
+| requests.memory | Jumlah Memory yang di request |
+| limits.cpu      | Jumlah limit maksimal CPU     |
+| limits.memory   | Jumlah limit maksimal Memory  |
+| metadata.name                   | Nama pod       |
+| metadata.namespace              | Namespace pod  |
+| metadata.uid                    | Id pod         |
+| metadata.labels\[‘<KEY>’\]      | Label pod      |
+| metadata.annotations\[‘<KEY>’\] | Annotation pod |
+| status.podIP            | IP address pod         |
+| spec.serviceAccountName | Nama service account pod|
+| spec.nodeName           | Nama node               |
+| status.hostIP           | IP address  node        |
+
+## Manage Kubernetes Object
+
+### Imperative Management
+| Perintah                                  | Keterangan                   |
+| ----------------------------------------- | ---------------------------- |
+| kubectl create -f namafile.yaml           | Membuat kubernetes object    |
+| kubectl replace -f namafile.yaml          | Mengupdate kubernetes object |
+| kubectl get -f namafile.yaml -o yaml/json | Melihat kubernetes object    |
+| kubectl delete -f namafile.yaml           | Menghapus kubernetes object  |
+
+### Declarative Management
+| Perintah                       | Keterangan                                |
+| ------------------------------ | ----------------------------------------- |
+| kubectl apply -f namafile.yaml | Membuat atau mengupdate kubernetes object |
+<br>
+Saat menggunakan declarative management, file konfigurasi akan disimpan di dalam annotations object (biasa berbentuk last-applied-configuration). Hal ini sangat bermanfaat ketika digunakan dalam `Deployment`. <br>
+Rata-rata sekarang kebanyakan Declarative Management lebih sering digunakan dibandingkan Imperative Management
+
+## Deployment
+Kubernetes memiliki fitur Deployment, yaitu sebuah resource untuk melakukan deployment aplikasi dan update secara deklaratif menggunakan file konfigurasi (yaml). <br>
+Update aplikasi secara manual bukanlah best-practice, kesalahan kecil yang kita lakukan saat update secara manual, bisa menyebabkan downtime sewaktu-waktu. <br>
+Saat kita membuat Deployment, secara otomatis Kubernetes akan membuat ReplicaSet, yang akan secara otomatis membuat Pod. Membuat Deployment hampir sama seperti membuat ReplicationSet. <br>
+
+### Diagram Deployment
+![deployment](/img/deployment.png)
+- Deployment akan membuat ReplicaSet, dan selanjutnya tugas ReplicaSet untuk membuat Pod secara otomatis
+- Membuat deployment dari file konfigurasi selalu disarankan untuk menggunakan declarative management (**apply**)
+```
+kubectl apply -f nama_file.yaml
+```
+
+### Update Deployment
+- Untuk update deployment, kita hanya tinggal `apply` lagi untuk mengupdate Deployment terbaru
+- Saat deployment terbaru dieksekusi, secara otomatis Deployment akan membuat ReplicaSet baru, lalu menyalakan Pod baru, setelah Pod siap, Deployment akan menghapus Pod lama secara otomatis
+- Semua proses di atas dapat berjalan otomatis, sehingga tidak terjadi downtime
+
+#### Flow Update Deployment
+1. Deployment membuat ReplicaSet baru
+2. ReplicaSet membuat Pod baru
+3. Pod baru siap digunakan
+4. Deployment menghapus Pod lama yang sudah dimatikan
+5. ReplicaSet lama tidak dihapus untuk keperluan Rollback Deployment
+
+### Rollback Deployment
+- Ketika terjadi masalah ketika deploy aplikasi terbaru, cara yang paling mudah agar tidak terjadi error adalah rollback ke Deployment sebelumnya <br>
+Beberapa cara rollback Deployment:
+1. Update menggunakan Deployment baru, namun versi aplikasi di-set ke versi sebelumnya (cara manual)
+2. Menggunakan fitur rollout Kubernetes untuk rollback ke versi Deployment sebelumnya (cara mudah)
+  
+#### Kubernetes Rollout
+| Kubernetes Rollout Command          | Keterangan                 |
+| ----------------------------------- | -------------------------- |
+| kubectl rollout history {object} {name} | Melihat history rollout    |
+| kubectl rollout pause {object} {name}   | Menandai sebagai pause     |
+| kubectl rollout resume {object} {name}  | Resume pause               |
+| kubectl rollout restart {object} {name} | Merestart rollout          |
+| kubectl rollout status {object} {name}  | Melihat status rollout     |
+| kubectl rollout undo {object} {name}    | Undo ke rollout sebelumnya |
+
+
 
 
 

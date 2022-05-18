@@ -3,15 +3,15 @@ kind: ReplicaSet
 metadata:
   name: nginx
 spec:
-  replicas: 3 
+  replicas: 2
   selector:
     matchLabels:
-      name: nginx
+      app: nginx
   template:
     metadata:
       name: nginx
       labels:
-        name: nginx
+        app: nginx
     spec:
       containers:
         - name: nginx
@@ -27,7 +27,7 @@ metadata:
   name: nginx-service
 spec:
   selector:
-    name: nginx
+    app: nginx
   ports:
   - port: 80
     targetPort: 80
