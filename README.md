@@ -643,12 +643,16 @@ Kubernetes memiliki Downward API. Downward API bisa membantu kita untuk mengambi
 | ------------------------------ | ----------------------------------------- |
 | kubectl apply -f namafile.yaml | Membuat atau mengupdate kubernetes object |
 <br>
+
 Saat menggunakan declarative management, file konfigurasi akan disimpan di dalam annotations object (biasa berbentuk last-applied-configuration). Hal ini sangat bermanfaat ketika digunakan dalam `Deployment`. <br>
+
 Rata-rata sekarang kebanyakan Declarative Management lebih sering digunakan dibandingkan Imperative Management
 
 ## Deployment
 Kubernetes memiliki fitur Deployment, yaitu sebuah resource untuk melakukan deployment aplikasi dan update secara deklaratif menggunakan file konfigurasi (yaml). <br>
+
 Update aplikasi secara manual bukanlah best-practice, kesalahan kecil yang kita lakukan saat update secara manual, bisa menyebabkan downtime sewaktu-waktu. <br>
+
 Saat kita membuat Deployment, secara otomatis Kubernetes akan membuat ReplicaSet, yang akan secara otomatis membuat Pod. Membuat Deployment hampir sama seperti membuat ReplicationSet. <br>
 
 ### Diagram Deployment
@@ -673,6 +677,7 @@ kubectl apply -f nama_file.yaml
 
 ### Rollback Deployment
 - Ketika terjadi masalah ketika deploy aplikasi terbaru, cara yang paling mudah agar tidak terjadi error adalah rollback ke Deployment sebelumnya <br>
+
 Beberapa cara rollback Deployment:
 1. Update menggunakan Deployment baru, namun versi aplikasi di-set ke versi sebelumnya (cara manual)
 2. Menggunakan fitur rollout Kubernetes untuk rollback ke versi Deployment sebelumnya (cara mudah)
